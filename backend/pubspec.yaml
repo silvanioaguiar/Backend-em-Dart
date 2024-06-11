@@ -8,8 +8,10 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
+  postgresql2: ^1.5.1
   shelf: ^1.4.1  
   shelf_modular: ^2.1.0
+  postgres: ^3.2.1
   # path: ^1.8.0
 
 dev_dependencies:
