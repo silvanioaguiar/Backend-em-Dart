@@ -15,6 +15,9 @@ class PostgresDatabase implements RemoteDatabase, Disposable {
   _init() async {
     final url = dotEnv['DATABASE_URL']!;
     final uri = Uri.parse(url);
+    // final name = 'Nome do usuário';
+    // final email = 'silvanio123@teste.com';
+    // final password = '123';
 
     var conn = await Connection.open(
       Endpoint(
@@ -30,7 +33,13 @@ class PostgresDatabase implements RemoteDatabase, Disposable {
     print('has connection!');
 
     final result0 = await conn.execute('SELECT * FROM public."User";');
+    final result1 = await conn
+        .execute(Sql.named('SELECT * FROM public."User" WHERE id = 5;'));
+    // final result2 = await conn.execute(
+    //     'INSERT INTO "User" (name, email, password) VALUES ( \'$name\', \'$email\', \'$password\') RETURNING id,email,name');
+
     print(result0);
+    print(result1);
   }
 
   // @override
@@ -48,10 +57,25 @@ class PostgresDatabase implements RemoteDatabase, Disposable {
   }
 
   @override
-  Future<Result> execute(String queryText,
+  Future<Result> executeMap(dynamic queryText,
       {required Map<String, dynamic> parameters}) async {
     final conn = await completer.future;
 
     return await conn.execute(queryText);
+  }
+
+  @override
+  Future<Result> executeList(dynamic queryText,
+      {required List<dynamic> parameters}) async {
+    final conn = await completer.future;
+
+    return await conn.execute(queryText);
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> query(String sql,
+      [List<dynamic>? values]) async {
+    final conn = await completer.future;
+    return await conn.query(sql, values);
   }
 }

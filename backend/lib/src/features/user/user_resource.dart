@@ -11,14 +11,15 @@ class UserResource extends Resource {
         Route.get('/user', _getAllUser),
         Route.get('/user/:id', _getUserByid),
         Route.post('/user', _createUser),
+        Route.post('/product', _createUser),
         Route.put('/user', _updateUser),
         //Route.delete('/user/:id', _deleteUser),
       ];
 
   FutureOr<Response> _getAllUser(Injector injector) async {
     final database = injector.get<RemoteDatabase>();
-    final result =
-        await database.execute('SELECT * FROM public."User";', parameters: {});
+    final result = await database
+        .executeMap('SELECT * FROM public."User";', parameters: {});
     final userList = result.toList();
 
     print(result);
@@ -31,8 +32,8 @@ class UserResource extends Resource {
     final database = injector.get<RemoteDatabase>();
     final result =
         //await database.execute('SELECT * FROM public."User" WHERE id = $id;');
-        await database.execute(
-            Sql.named('SELECT * FROM public."User" WHERE id = @id'),
+        await database.executeMap(
+            Sql.named('SELECT * FROM public."User" WHERE id=$id;'),
             parameters: {'id': id});
     print(result);
     return Response.ok(jsonEncode(result));
@@ -41,26 +42,26 @@ class UserResource extends Resource {
   FutureOr<Response> _createUser(
       ModularArguments arguments, Injector injector) async {
     final userParams = (arguments.data as Map).cast<String, dynamic>();
+    //final userParams = (arguments.data as List).cast<dynamic>();
+    //final userParams = arguments.data;
 
-    final userParams2 = {
-      "name": "Teste5",
-      "email": "teste@teste5.com",
-      "password": "123456",
-    };
+    // final userParams2 = {
+    //   "name": "Teste5",
+    //   "email": "teste@teste5.com",
+    //   "password": "123456",
+    // };
 
-    userParams.remove('id');
+    //userParams.remove('id');
 
     final database = injector.get<RemoteDatabase>();
-    final result = await database.execute(
-      //r'INSERT INTO "User" (name, email, password) VALUES ( @name, @email, @password) RETURNING id,email,role,name',
-      'INSERT INTO public."User" (User.name, User.email, User.password)'
-      'VALUES (@"User.name", @"User.email", @"User.password")',
-      parameters: {
-        'nome': 'Teste5',
-        'email': 'teste@teste5.com',
-        'password': '123456',
-      },
-      //parameters: userParams2,
+    final result = await database.query(
+      r'INSERT INTO "User" (name, email, password) VALUES ( $1, $2, $3) RETURNING id,email,name',
+      // 'INSERT INTO public."User" (id , "name", email, password)'
+      // "VALUES (7,name, teste@gmail.com, '123')",
+
+      // r'INSERT INTO public."Product" (codigo) VALUES ($1)',
+
+      //parameters: ['teste', 'teste123456@gmail.com', '123456'],
     );
     return Response.ok(jsonEncode(result));
   }
